@@ -33,6 +33,7 @@
 
 
 
+extern int yydebug;
 
 int main (int argc, char *argv[])
 {
