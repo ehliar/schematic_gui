@@ -1,4 +1,4 @@
-# INTRO: 
+# INTRO 
 
 schematic_gui is a lightweight tool to draw circuit diagrams of
 digital designs. It was written because I was not satisfied with the
@@ -7,7 +7,7 @@ purposes.
 
 
 
-# FEATURES:
+# FEATURES
 
 * Optimized for quick schematic entry. Wires will _always_ snap to the
   closest connector or wire (depending on if the middle or right mouse
@@ -25,8 +25,15 @@ purposes.
 * Exports to SVG file format
 
 
+# PREVIEW
 
-# LICENSE:
+This is a screenshot when opening the simple_alu.v file in the
+examples directory.
+
+![Screenshot](/screenshot.png?raw=true)
+
+
+# LICENSE
 
 * Copyright (C) 2015 Andreas Ehliar <andreas.ehliar@liu.se>
 * GPLv3 or later.
@@ -37,19 +44,19 @@ purposes.
 
 
 
-# REQUIREMENTS:
+# REQUIREMENTS
 
 * libavoid (from the adaptagrams framework)
 * gtk3
 
 
 
-# USAGE:
+# USAGE
 
 Note that all of these operations are subject to change based on
 feedback from users.
 
-## List of mouse operations:
+## List of mouse operations
 * Left mouse button: To move the highlighted component or checkpoint,
   press the left mouse button once to enable move mode, press the left
   mouse button once again when you have moved it.
@@ -62,7 +69,7 @@ feedback from users.
 * Scroll wheel: Zoom in/out
 
 
-## List of keyboard operations:
+## List of keyboard operations
 
 * Arrow keys: Scroll left,right,up,down
 * d: Deletes the closest wire (alternatively, abort wire drawing if
@@ -85,7 +92,7 @@ feedback from users.
 * Ctrl-s: Saves the current design (hint, save often and using different
   filenames, this program is not really stable yet)
 
-## List of supported components
+## List of supported component
 
 These components are added to the schematic by pressing the corresponding key.
 * 1: Create an adder
@@ -102,7 +109,7 @@ These components are added to the schematic by pressing the corresponding key.
 
 
 
-# TODO:
+# TODO
 
 * Fix all memory leaks
 * Make sure the design files that are saved are actually correct Verilog code
