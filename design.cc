@@ -372,6 +372,7 @@ void schematic_design::save_verilog(std::string filename)
 
 	// Find all wirenames in the schematic
         for(const auto & c : router->connRefs){
+		printf("Added wire '%s'\n", connref_names[c].c_str());
                 wirenames.emplace(connref_names[c]);
         }
 	// Output all wirenames in the schematic
@@ -830,15 +831,37 @@ void schematic_design::add_checkpoint_to_closest_line(double x, double y)
 		return;
 	}
 
+	std::string wirename = connref_names[closestline];
  	std::pair<Avoid::JunctionRef *, Avoid::ConnRef *> tmp = closestline->splitAtSegment(1);
  	tmp.first->setPositionFixed(true);
  	router->moveJunction(tmp.first, Avoid::Point(x, y));
         router->setRoutingParameter(Avoid::segmentPenalty, 2);
         router->processTransaction();
 
+	connref_names[tmp.second] = wirename;
+
 	obstacle_is_selected = false;
 	current_gate_is_closest = false;
         
+}
+
+void schematic_design::clean_wirenames()
+{
+	printf("Clean wirenames called\n");
+	std::unordered_set<Avoid::ConnRef *> valid_connrefs;
+	for(const auto & c : router->connRefs){
+		printf("Emplaced %p\n", c);
+		valid_connrefs.emplace(c);
+	}
+	std::unordered_map<Avoid::ConnRef *, std::string> new_names;
+	for(const auto & c : connref_names){
+		printf("Looking for %p\n", c.first);
+		if(valid_connrefs.count(c.first) > 0){
+			new_names[c.first] = c.second;
+			printf("Added wirename %s\n", c.second.c_str());
+		}
+	}
+	connref_names = new_names;
 }
 
 void schematic_design::remove_connref_and_fixed_junctions(Avoid::ConnRef *connref)
@@ -872,6 +895,7 @@ void schematic_design::remove_connref_and_fixed_junctions(Avoid::ConnRef *connre
         
         router->deleteConnector(connref);
 }
+
 void schematic_design::remove_closest_object(double x, double y)
 {
         if(find_closest_obstacle(x,y)){
@@ -885,6 +909,7 @@ void schematic_design::remove_closest_object(double x, double y)
                         Avoid::ConnRefList l = s->attachedConnectors();
                         if(l.size() > 0){
                                 remove_connref_and_fixed_junctions(l.front());
+				clean_wirenames();
                                 closest_fixed_junction = NULL;
                         }else{
                                 finished = true;
@@ -895,7 +920,26 @@ void schematic_design::remove_closest_object(double x, double y)
                 gates.erase(closest_gate);
         }else{
                 if(closest_fixed_junction){
-                        closest_fixed_junction->removeJunctionAndMergeConnectors();
+			// FIXME: Note, memory leak. This function
+			// does not (according to adaptagram
+			// documentation) delete and free the Junction
+			// itself
+			Avoid::ConnRefList thelist = closest_fixed_junction->attachedConnectors();
+			std::vector<Avoid::ConnRef *> l{std::begin(thelist), std::end(thelist) };
+			if(l.size() != 2){
+				fprintf(stderr,"Error, unexpected connreflist size\n");
+				abort();
+			}
+			Avoid::ConnRef *newconnref = closest_fixed_junction->removeJunctionAndMergeConnectors();
+			if(l[0] == newconnref){
+				connref_names.erase(l[1]);
+			}else if(l[1] == newconnref){
+				connref_names.erase(l[0]);
+			}else{
+				// Sanity check, should not happen
+				fprintf(stderr,"Error, could not erase old connref name\n");
+				abort();
+			}
                 }
                 closestline = NULL;
                 closest_fixed_junction = NULL;
@@ -999,20 +1043,22 @@ void schematic_design::create_new_text_and_attach(double x, double y, const char
         distx = fabs(pinx-x);
         disty = fabs(piny-y);
 
+	Avoid::ConnRef *tmp;
         if((piny > y) && (distx < disty)){
-                current_gate_pin->connect(current_pin+1, current_gate, 3);
+                tmp = current_gate_pin->connect(current_pin+1, current_gate, 3);
                 current_gate->move(pinx,y);
         }else if((piny < y) && (distx < disty)){
-                current_gate_pin->connect(current_pin+1, current_gate, 4);
+                tmp = current_gate_pin->connect(current_pin+1, current_gate, 4);
                 current_gate->move(pinx,y);
         }else if((pinx> x) && (disty < distx)){
-                current_gate_pin->connect(current_pin+1, current_gate, 2);
+                tmp = current_gate_pin->connect(current_pin+1, current_gate, 2);
                 current_gate->move(x,piny);
         }else{
-                current_gate_pin->connect(current_pin+1, current_gate, 1);
+                tmp = current_gate_pin->connect(current_pin+1, current_gate, 1);
                 current_gate->move(x,piny);
         }
         router->processTransaction();
+	create_new_wirename(tmp);
 }
 void schematic_design::add_gate(std::string gatename)
 {
@@ -1042,6 +1088,7 @@ bool schematic_design::handle_key(int keyval)
         }if(keyval == 'D'){
                 remove_closest_object(lastx, lasty);
                 remove_unused_junctions();
+		clean_wirenames();
                 refresh_highlighted_objects(x,y);
         }else if(keyval == GDK_KEY_Right){
 		cairo_translation_x += 16;
@@ -1061,6 +1108,7 @@ bool schematic_design::handle_key(int keyval)
 			closestline = NULL;
                         closest_fixed_junction = NULL;
 			remove_unused_junctions();
+			clean_wirenames();
 		}
 		router->processTransaction();
 	}else if(keyval == '1'){
@@ -1470,6 +1518,11 @@ void schematic_design::register_verilog_module(struct module *m)
 	struct module_inst *inst = m->insts;
 	// For debugging
 	// print_module(m);
+
+	// FIXME: Load wirenames from verilog file!
+	unsigned int wire_id = 0;
+	std::string current_wirename = "UNDEFINED_DO_NOT_USE";
+	
 	while(inst){
 		struct portconnection *port = inst->ports;
 		gate * tmp = create_new_gate(inst->modulename, inst->instname);
@@ -1487,6 +1540,7 @@ void schematic_design::register_verilog_module(struct module *m)
 	std::vector<Avoid::ConnEnd> startpin;
 	Avoid::ConnEnd endpin;
 	int startpinlevel = 0;
+	Avoid::ConnRef *newconnref;
         while(stmt){
                 switch(stmt->type){
                 case SETPOS:
@@ -1524,6 +1578,7 @@ void schematic_design::register_verilog_module(struct module *m)
 			startpin.clear();
 			startpin.push_back(tmp->getConnEnd(pin));
 			startpinlevel = 1;
+			current_wirename = "unnamedwire" + std::to_string(wire_id++);
 		}
 		break;
 		case ENDROUTE:
@@ -1532,14 +1587,16 @@ void schematic_design::register_verilog_module(struct module *m)
 			gate *tmp = gate_names[stmt->name1];
 			int pin = tmp->get_connector_num(stmt->name2);
 			endpin= tmp->getConnEnd(pin);
-			new Avoid::ConnRef(router, startpin.back(), endpin);
+			newconnref = new Avoid::ConnRef(router, startpin.back(), endpin);
+			connref_names[newconnref]= current_wirename;
 		}
 		break;
 		case JUNCTION:
 		{
 		    
 			Avoid::JunctionRef *j = new Avoid::JunctionRef(router, Avoid::Point(stmt->x1, stmt->y1));
-			new Avoid::ConnRef(router, startpin.back(), Avoid::ConnEnd(j));
+			newconnref = new Avoid::ConnRef(router, startpin.back(), Avoid::ConnEnd(j));
+			connref_names[newconnref]= current_wirename;
 			startpin.push_back(Avoid::ConnEnd(j));
 			startpinlevel++;
 		}
@@ -1549,7 +1606,8 @@ void schematic_design::register_verilog_module(struct module *m)
 		    
 			Avoid::JunctionRef *j = new Avoid::JunctionRef(router, Avoid::Point(stmt->x1, stmt->y1));
 			j->setPositionFixed(true);
-			new Avoid::ConnRef(router, startpin.back(), Avoid::ConnEnd(j));
+			newconnref = new Avoid::ConnRef(router, startpin.back(), Avoid::ConnEnd(j));
+			connref_names[newconnref]= current_wirename;
 			startpin.push_back(Avoid::ConnEnd(j));
 			startpinlevel++;
 		}
@@ -1568,7 +1626,8 @@ void schematic_design::register_verilog_module(struct module *m)
 			textg->settext(stmt->name1);
 			textg->move(stmt->x1, stmt->y1);
                         if(stmt->x2 > 0){
-                                new Avoid::ConnRef(router, startpin.back(), textg->getConnEnd(stmt->x2-1));
+                                newconnref = new Avoid::ConnRef(router, startpin.back(), textg->getConnEnd(stmt->x2-1));
+				connref_names[newconnref]= current_wirename;
                         }
 		}
 		break;
@@ -1581,6 +1640,8 @@ void schematic_design::register_verilog_module(struct module *m)
                         if(stmt->x2 > 0){
                                 startpin.push_back(textg->getConnEnd(stmt->x2-1));
                         }
+			startpinlevel = 1;
+			current_wirename = "unnamedwire" + std::to_string(wire_id++);
 		}
 		break;
 		default:

@@ -31,8 +31,8 @@
 #include "design.hh"
 #include "designgui.hh"
 
-#define WINDOW_WIDTH  1024
-#define WINDOW_HEIGHT 768
+#define WINDOW_WIDTH  800
+#define WINDOW_HEIGHT 600
 
 gboolean schematic_gui::draw_cb(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
@@ -163,7 +163,7 @@ gboolean schematic_gui::do_open(GtkWidget *widget, gpointer user_data)
 	}
 
 	std::string newfile = do_dialog(chooser);
-	if(newfile.length() == std::string::npos){
+	if(newfile.length() == 0){
 		return FALSE;
 	}
 	delete sg->thedesign;

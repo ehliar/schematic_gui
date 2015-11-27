@@ -80,7 +80,9 @@ private:
 
 	void create_new_wirename(Avoid::ConnRef *connref);
 	void debug_save();
+	void clean_wirenames();
   
+        // FIXME: Move private stuff to private:
 public:
         void update_viewport(double x, double y, double scaling) {
                 cairo_translation_x = x;
