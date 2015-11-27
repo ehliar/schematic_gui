@@ -39,6 +39,7 @@
 
 
 extern int start_token;
+extern int yyparse(void);
 
 
 
