@@ -85,18 +85,19 @@ feedback from users.
 * Ctrl-s: Saves the current design (hint, save often and using different
   filenames, this program is not really stable yet)
 
-## List of supported components (press the corresponding key to create the
-component):
-1: Create an adder
-2: Create 2 input multiplexer
-3: Create 3 input multiplexer
-4: Create 4 input multiplexer
-5: Create 5 input multiplexer
-6: Create 6 input multiplexer
-7: Create a register
-8: Create a multiplier
-9: Create a small black box component
-0: Create a large black box component
+## List of supported components
+
+These components are added to the schematic by pressing the corresponding key.
+* 1: Create an adder
+* 2: Create 2 input multiplexer
+* 3: Create 3 input multiplexer
+* 4: Create 4 input multiplexer
+* 5: Create 5 input multiplexer
+* 6: Create 6 input multiplexer
+* 7: Create a register
+* 8: Create a multiplier
+* 9: Create a small black box component
+* 0: Create a large black box component
 
 
 
@@ -121,6 +122,9 @@ component):
 * Export to other formats than SVG
 * Allow component symbols to be specified using SVG (perhaps using
   librsvg to read these symbols?)
+* Add a better way to add components
+* Add a way to cycle through similar components without deleting all
+  connected wires
 * At the moment only acyclic graphs are allowed for wires in the
   design. There are, however, no checks that prohibit their creation
   in the GUI. (But they can't be saved correctly in some
