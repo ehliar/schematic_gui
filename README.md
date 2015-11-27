@@ -32,6 +32,18 @@ examples directory.
 
 ![Screenshot](/screenshot.png?raw=true)
 
+## Features seen in screenshot:
+* Small circle: Closest connector port, press middle button to connect
+  a wire here.
+* Larger circle: Closest point on a wire, press right mouse button to
+  connect a wire here.
+* Crossmark: Checkpoint, routing has been manually overridden here in
+  order to look better.
+* In addition, the component closest to the mouse cursor (the adder)
+  is also highlighted. Whenever the left mouse button is pressed the
+  highlighted component will be moved (regardless of how close the
+  mouse cursor is).
+
 
 # LICENSE
 
