@@ -275,9 +275,11 @@ gate * schematic_design::create_new_gate(const char *filename, const char *instn
 
 }
 
-
 void schematic_design::draw_junction(cairo_t *cr, Avoid::JunctionRef *j, bool is_ui)
 {
+	if(router->shapeContainingPoint(j->position())){
+		printf("Probably buggy output!\n");
+	}
 	if(j->positionFixed()){
 		double x;
 		double y;
@@ -748,6 +750,7 @@ void schematic_design::move_current_obstacle(double x, double y)
 		}
 		router->moveJunction(closest_fixed_junction,Avoid::Point(((int)x/10)*10,((int)y/10)*10));
         }
+
         router->processTransaction();
 }
 
@@ -1460,6 +1463,34 @@ void schematic_design::handle_button(int button, double x, double y)
 	
 }
 
+void schematic_design::clean_junction_positions()
+{
+	for(const auto & connref : router->connRefs){
+		std::pair<Avoid::ConnEnd, Avoid::ConnEnd> endpoints = connref->endpointConnEnds();
+		Avoid::JunctionRef *j = endpoints.first.junction();
+		if(j){
+			if(!j->positionFixed()){
+				while(router->shapeContainingPoint(j->position())){
+					printf("MOVE MOVE\n");
+					router->moveJunction(j, j->position() + Avoid::Point(10,10));
+					router->processTransaction();
+				}
+			}
+		}
+		j = endpoints.second.junction();
+		if(j){
+			if(!j->positionFixed()){
+				while(router->shapeContainingPoint(j->position())){
+					printf("MOVE MOVE\n");
+					router->moveJunction(j, j->position() + Avoid::Point(10,10));
+					router->processTransaction();
+				}
+			}
+		}
+	}
+	router->processTransaction();
+}
+
 
 void schematic_design::update_all_junctions()
 {
@@ -1525,6 +1556,8 @@ void schematic_design::refresh_highlighted_objects(double x, double y)
 
 	if(obstacle_is_selected){
                 move_current_obstacle(x,y);
+		clean_junction_positions();
+		update_all_junctions();
 	}
 	
 }
@@ -1741,6 +1774,7 @@ schematic_design::schematic_design(const char *filename)
                 }
         }
 
+        router->setRoutingOption(Avoid::improveHyperedgeRoutesMovingJunctions, true);
         router->setRoutingPenalty(Avoid::segmentPenalty);
         router->setRoutingParameter(Avoid::segmentPenalty, 2);
 	//   router->setRoutingParameter(Avoid::shapeBufferDistance, 15);

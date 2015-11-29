@@ -81,6 +81,7 @@ private:
 	void create_new_wirename(Avoid::ConnRef *connref);
 	void debug_save();
 	void clean_wirenames();
+        void clean_junction_positions();
   
         // FIXME: Move private stuff to private:
 public:
