@@ -332,6 +332,11 @@ void schematic_design::draw_connref(cairo_t *cr, Avoid::ConnRef *connref, bool i
 			cairo_set_source_rgb (cr, 1, 0.5, 0.5);
 		}
 	}
+	if(connref == closestline){
+		if(is_ui){
+			cairo_set_source_rgb (cr, 1, 0.0, 0.0);
+		}
+	}
 	cairo_move_to(cr, ps[0].x, ps[0].y);
 	for(const auto & thepoint : p.ps){
 		cairo_line_to(cr, thepoint.x, thepoint.y);
@@ -865,6 +870,8 @@ void schematic_design::clean_wirenames()
 	connref_names = new_names;
 }
 
+// FIXME: Name of function is not totally correct (removes junctions
+// with two connections (e.g. unused junctions)
 void schematic_design::remove_connref_and_fixed_junctions(Avoid::ConnRef *connref)
 {
         std::pair<Avoid::ConnEnd, Avoid::ConnEnd> endpoints = connref->endpointConnEnds();
@@ -873,6 +880,7 @@ void schematic_design::remove_connref_and_fixed_junctions(Avoid::ConnRef *connre
         if(j){
                 Avoid::ConnRef *r = j->removeJunctionAndMergeConnectors();
                 if(r){
+			router->processTransaction();
                         // Ok, try to remove the now dangling connref returned in r
                         remove_connref_and_fixed_junctions(r);
                         return;
@@ -883,18 +891,16 @@ void schematic_design::remove_connref_and_fixed_junctions(Avoid::ConnRef *connre
         if(j){
                 Avoid::ConnRef *r = j->removeJunctionAndMergeConnectors();
                 if(r){
+			router->processTransaction();
                         // Ok, try to remove the now dangling connref returned in r
                         remove_connref_and_fixed_junctions(r);
                         return;
                 }
         }
+	// Note: clean_wirenames() must be run after this function
 
-        if(connref_names.count(connref) > 0){
-                std::string name = connref_names[connref];
-                connref_names.erase(connref);
-        }
-        
         router->deleteConnector(connref);
+	router->processTransaction();
 }
 
 void schematic_design::remove_closest_object(double x, double y)
@@ -932,6 +938,7 @@ void schematic_design::remove_closest_object(double x, double y)
 				abort();
 			}
 			Avoid::ConnRef *newconnref = closest_fixed_junction->removeJunctionAndMergeConnectors();
+			router->processTransaction();
 			if(l[0] == newconnref){
 				connref_names.erase(l[1]);
 			}else if(l[1] == newconnref){
@@ -945,6 +952,7 @@ void schematic_design::remove_closest_object(double x, double y)
                 closestline = NULL;
                 closest_fixed_junction = NULL;
         }
+	router->processTransaction();
 }
 
 
@@ -1086,7 +1094,9 @@ bool schematic_design::handle_key(int keyval)
 	scale_and_translate(&x,&y);
         if(keyval == 'A'){
                 select_all_objects();
-        }if(keyval == 'D'){
+	}else if(keyval == 'P'){
+		router->outputInstanceToSVG("debug");
+        }else if(keyval == 'D'){
                 remove_closest_object(lastx, lasty);
                 remove_unused_junctions();
 		clean_wirenames();
