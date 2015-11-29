@@ -60,6 +60,7 @@ private:
         Avoid::Router *router;
 
         Avoid::ConnRef *closestline;
+        Avoid::ConnRef *previous_closestline;
         double closestlinex, closestliney;
         double closestconnectorx, closestconnectory;
         Avoid::JunctionRef *closest_fixed_junction;
@@ -82,7 +83,7 @@ private:
 	void debug_save();
 	void clean_wirenames();
         void clean_junction_positions();
-  
+        bool is_same_wire(Avoid::ConnRef *connref1, Avoid::ConnRef *connref2);
         // FIXME: Move private stuff to private:
 public:
         void update_viewport(double x, double y, double scaling) {
@@ -92,6 +93,7 @@ public:
         }
         void synch_shaperefs();
         void trace_connref(Avoid::ConnRef *connref, bool startsearch=true, FILE *fp = NULL, int junctionlevel = 0);
+        void set_connref_name_all(Avoid::ConnRef *connref, std::string thename);
         void set_connref_name(Avoid::ConnRef *connref, std::string thename);
         std::string get_connref_name(Avoid::ConnRef *connref);
         double check_distance(double x1, double y1, double x2, double y2);

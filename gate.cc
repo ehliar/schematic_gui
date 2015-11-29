@@ -488,15 +488,26 @@ void gate::draw(cairo_t *cr, bool is_ui)
 		if(is_ui){
 			cairo_save(cr);
 			cairo_set_source_rgb (cr, 0.8, 0.8, 0.8);
-			cairo_rectangle(cr, x-textwidth/2-5,y-textheight/2-5,textwidth+10,textheight+10);
+			cairo_move_to (cr, x, y);
+			cairo_rotate(cr, rotation*M_PI/2);
+			cairo_rel_move_to(cr, -textwidth/2-5, -textheight/2-5);
+			cairo_rel_line_to (cr, textwidth+10, 0);
+			cairo_rel_line_to (cr, 0, textheight+10);
+			cairo_rel_line_to (cr, -textwidth-10, 0);
+			cairo_close_path (cr);
+			
 			cairo_fill(cr);
 			cairo_restore(cr);
 		}
 
-		cairo_move_to (cr, x-textwidth/2-5 -text_xbearing+5,y-textheight/2-5-text_ybearing + 5);
+		cairo_save(cr);
+		//		cairo_move_to (cr, x-textwidth/2-5 -text_xbearing+5,y-textheight/2-5-text_ybearing + 5);
+		cairo_move_to (cr, x,y);
+		cairo_rotate(cr, rotation*M_PI/2);
+		cairo_rel_move_to (cr, -textwidth/2-5 -text_xbearing+5,-textheight/2-5-text_ybearing + 5);		
 		cairo_show_text (cr, text.c_str());
 		cairo_stroke(cr);
-
+		cairo_restore(cr);
                 
 		return;
 	}

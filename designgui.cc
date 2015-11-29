@@ -236,6 +236,9 @@ gboolean schematic_gui::press_button(GtkWidget *widget, GdkEvent *ev, gpointer u
 	// printf("Button %d pressed at %lf, %lf\n",b->button, b->x, b->y);
 	sg->thedesign->handle_button(b->button,b->x,b->y);
 
+	// Probably need to refresh at this point...
+	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
+
 	return FALSE;
 }
 

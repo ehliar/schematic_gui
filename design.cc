@@ -26,6 +26,8 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <assert.h>
+
 
 #include "gate.hh"
 #include "verilog-subset.h"
@@ -53,7 +55,7 @@ void schematic_design::synch_shaperefs()
 
 void schematic_design::trace_connref(Avoid::ConnRef *connref, bool startsearch, FILE *fp, int junctionlevel)
 {
-                
+             
 	if(startsearch){
 		connected_connrefs.clear();
 		connected_junctions.clear();
@@ -177,12 +179,20 @@ void schematic_design::trace_connref(Avoid::ConnRef *connref, bool startsearch, 
 	}
 }
 
-// FIXME: Make sure that top level inputs/outputs are visible in internal netlist!
 
-
-
-void schematic_design::set_connref_name(Avoid::ConnRef *connref, std::string thename)
+bool schematic_design::is_same_wire(Avoid::ConnRef *connref1, Avoid::ConnRef *connref2)
 {
+	trace_connref(connref1, true);
+	if(connected_connrefs.count(connref2) > 0){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+void schematic_design::set_connref_name_all(Avoid::ConnRef *connref, std::string thename)
+{
+	assert(thename.size() > 0);
         trace_connref(connref, true);
         for(const auto &c : connected_connrefs){
 		printf("Setting on %p", c);
@@ -192,14 +202,18 @@ void schematic_design::set_connref_name(Avoid::ConnRef *connref, std::string the
 }
 
 
+void schematic_design::set_connref_name(Avoid::ConnRef *connref, std::string thename)
+{
+	// Could be an alias for set_connref_name_all
+	assert(thename.size() > 0);
+	connref_names[connref] = thename;
+}
+
+
 std::string schematic_design::get_connref_name(Avoid::ConnRef *connref)
 {
-//        trace_connref(connref, true);
-	if(connref_names.count(connref) > 0){
-		return connref_names[connref];
-	}
-	fprintf(stderr, "ERROR: connref not present in connref_names\n");
-	abort();
+	assert(connref_names.count(connref) > 0);
+	return connref_names[connref];
 }
 
 double schematic_design::check_distance(double x1, double y1, double x2, double y2)
@@ -277,9 +291,6 @@ gate * schematic_design::create_new_gate(const char *filename, const char *instn
 
 void schematic_design::draw_junction(cairo_t *cr, Avoid::JunctionRef *j, bool is_ui)
 {
-	if(router->shapeContainingPoint(j->position())){
-		printf("Probably buggy output!\n");
-	}
 	if(j->positionFixed()){
 		double x;
 		double y;
@@ -364,6 +375,7 @@ void schematic_design::draw_connref(cairo_t *cr, Avoid::ConnRef *connref, bool i
 	
 }
 
+// FIXME: Make sure that top level inputs/outputs are visible in internal netlist!
 
 void schematic_design::save_verilog(std::string filename)
 {
@@ -380,8 +392,7 @@ void schematic_design::save_verilog(std::string filename)
 
 	// Find all wirenames in the schematic
         for(const auto & c : router->connRefs){
-		printf("Added wire '%s'\n", connref_names[c].c_str());
-                wirenames.emplace(connref_names[c]);
+                wirenames.emplace(get_connref_name(c));
         }
 	// Output all wirenames in the schematic
 	// FIXME: Handle width of wires somehow
@@ -579,7 +590,6 @@ double schematic_design::find_distance(double x1, double y1, double x2, double y
 
 	double tmp;
 	if(x1 == x2){
-//		printf("VERTICAL\n");
 		if(y2 < y1){
 			tmp = y2;
 			y2 = y1;
@@ -599,7 +609,6 @@ double schematic_design::find_distance(double x1, double y1, double x2, double y
 		*closesty = y;
 		return fabs(x1-x);
 	}else{ // y1 == y2
-//		printf("HORIZONTAL\n");
 		if(x2 < x1){
 			tmp = x2;
 			x2 = x1;
@@ -840,14 +849,14 @@ void schematic_design::add_checkpoint_to_closest_line(double x, double y)
 		return;
 	}
 
-	std::string wirename = connref_names[closestline];
+	std::string wirename = get_connref_name(closestline);
  	std::pair<Avoid::JunctionRef *, Avoid::ConnRef *> tmp = closestline->splitAtSegment(1);
  	tmp.first->setPositionFixed(true);
  	router->moveJunction(tmp.first, Avoid::Point(x, y));
         router->setRoutingParameter(Avoid::segmentPenalty, 2);
         router->processTransaction();
 
-	connref_names[tmp.second] = wirename;
+	set_connref_name(tmp.second,wirename);
 
 	obstacle_is_selected = false;
 	current_gate_is_closest = false;
@@ -856,7 +865,6 @@ void schematic_design::add_checkpoint_to_closest_line(double x, double y)
 
 void schematic_design::clean_wirenames()
 {
-	printf("Clean wirenames called\n");
 	std::unordered_set<Avoid::ConnRef *> valid_connrefs;
 	for(const auto & c : router->connRefs){
 		printf("Emplaced %p\n", c);
@@ -866,6 +874,7 @@ void schematic_design::clean_wirenames()
 	for(const auto & c : connref_names){
 		printf("Looking for %p\n", c.first);
 		if(valid_connrefs.count(c.first) > 0){
+			assert(c.second.size() > 0);
 			new_names[c.first] = c.second;
 			printf("Added wirename %s\n", c.second.c_str());
 		}
@@ -956,6 +965,7 @@ void schematic_design::remove_closest_object(double x, double y)
                 closest_fixed_junction = NULL;
         }
 	router->processTransaction();
+	obstacle_is_selected = false;
 }
 
 
@@ -1154,6 +1164,7 @@ bool schematic_design::handle_key(int keyval)
                 if(closest_gate){
                         closest_gate->rotate(1);
                         router->processTransaction();
+			refresh_highlighted_objects(x,y);
                 }
         }else if(keyval == 'i'){
                 if(current_gate_pin){
@@ -1173,7 +1184,7 @@ bool schematic_design::handle_key(int keyval)
 			str = show_entry_dialog(netname).c_str();
 		}
 
-                set_connref_name(closestline, str);
+                set_connref_name_all(closestline, str);
                 
         }else if(keyval == 'E'){
 		const char *str;
@@ -1340,7 +1351,9 @@ void schematic_design::create_new_wirename(Avoid::ConnRef *connref)
         // Find all unique wirenames
         std::unordered_set<std::string> wirenames;
         for(const auto & c : router->connRefs){
-                wirenames.emplace(connref_names[c]);
+		if(connref_names.count(c) > 0){
+			wirenames.emplace(connref_names[c]);
+		}
         }
 
 	unsigned int unknown_wireid = 0;
@@ -1348,7 +1361,7 @@ void schematic_design::create_new_wirename(Avoid::ConnRef *connref)
 	do{
 		newwirename = "unnamed_wire" + std::to_string(unknown_wireid++);
 	}while(wirenames.count(newwirename) > 0);
-	connref_names[connref] = newwirename;
+	set_connref_name(connref, newwirename);
 }
 
 void schematic_design::handle_button(int button, double x, double y)
@@ -1369,7 +1382,8 @@ void schematic_design::handle_button(int button, double x, double y)
                         return;
                 }
         }
-        
+
+	// FIXME: Refactor, move to different functions. Add documentation.
 	if(button == 2){
 		if(!activeconnend){
 			selectedConnEnd = currentConnEnd;
@@ -1383,40 +1397,63 @@ void schematic_design::handle_button(int button, double x, double y)
 			temporary_route = new Avoid::ConnRef(router, Avoid::ConnEnd(temporary_junction), selectedConnEnd);
 			router->processTransaction();
                         name_of_first_connref = "";
+			previous_closestline = NULL;
 		}else{
+			previous_closestline = NULL;
                         must_save = true;
 			activeconnend = 0;
 			router->deleteJunction(temporary_junction);
 			router->deleteConnector(temporary_route);
 			temporary_route = 0;
-			Avoid::ConnRef *newconnref = new Avoid::ConnRef(router, selectedConnEnd, currentConnEnd);
-                        
-			router->processTransaction();
-			selected_gate_pin = 0;
-                        if(name_of_first_connref.empty()){
-                                create_new_wirename(newconnref);
-                        }else{
-                                connref_names[newconnref] = name_of_first_connref;
-				printf("new for %p: %s\n", newconnref, name_of_first_connref.c_str());
-                                name_of_first_connref = "ERROR_THIS_NAME_SHOULD_NOT_BE_USED"; // For sanity checking
-                        }
+
+			// Make sure we don't try to connect to the same wire
+			if((selected_gate_pin != current_gate_pin) ||
+			   (selected_pin != current_pin)){
+				
+				Avoid::ConnRef *newconnref = new Avoid::ConnRef(router, selectedConnEnd, currentConnEnd);
+				
+				router->processTransaction();
+				selected_gate_pin = 0;
+				if(name_of_first_connref.empty()){
+					create_new_wirename(newconnref);
+				}else{
+					set_connref_name_all(newconnref, name_of_first_connref);
+					printf("new for %p: %s\n", newconnref, name_of_first_connref.c_str());
+					name_of_first_connref = "ERROR_THIS_NAME_SHOULD_NOT_BE_USED"; // For sanity checking
+				}
+			}else{
+				printf("Trying to connect to same connend\n");
+			}
 		}
 	}else if(button == 3){
-		if(!closestline){
+		if(!closestline || is_same_wire(closestline, previous_closestline)){
+			if(is_same_wire(closestline, previous_closestline)){
+				fprintf(stderr, "Warning: The program does not handle cyclic wire graphs, ignoring this command\n");
+			}
+			// This might happen if the design is empty except for the first wire
+			if(activeconnend){
+				activeconnend = false;
+				router->deleteJunction(temporary_junction);
+				router->deleteConnector(temporary_route);
+				remove_unused_junctions();
+				clean_wirenames();
+			}
+				
 			activeconnend = false;
-			printf("WARNING: No closest line, ignoring (should not happen!)\n");
+			previous_closestline = NULL;
 			return;
 		}
-                std::vector<Avoid::Checkpoint> empty;
-                closestline->setRoutingCheckpoints(empty);
                 std::string oldname; // FIXME: need better name for this variable (name_of_closest_line perhaps)
-                if(connref_names.count(closestline) == 0){
-                        fprintf(stderr,"Internal error, no name for the selected wire (continuing anyway)\n");
-                        oldname = "EMPTY_NAME_FOR_SELECTED_WIRE";
-                }else{
-                        oldname = connref_names[closestline];
-                }
+//                 if(connref_names.count(closestline) == 0){
+//                         fprintf(stderr,"Internal error, no name for the selected wire (continuing anyway)\n");
+//                         oldname = "EMPTY_NAME_FOR_SELECTED_WIRE";
+//                 }else{
+//                         oldname = connref_names[closestline];
+//                 }
+ 		oldname = get_connref_name(closestline);
+		
 		std::pair<Avoid::JunctionRef *, Avoid::ConnRef *> tmp = closestline->splitAtSegment(1);
+		set_connref_name(tmp.second, oldname);
 		
 		router->processTransaction();
 
@@ -1425,28 +1462,34 @@ void schematic_design::handle_button(int button, double x, double y)
 			router->deleteConnector(temporary_route);
 			router->deleteJunction(temporary_junction);
 			temporary_route = 0;
-			
-                        Avoid::ConnRef *newconnref = new Avoid::ConnRef(router, Avoid::ConnEnd(tmp.first), selectedConnEnd);
 			router->processTransaction();
-                        if(name_of_first_connref.size() == 0){
-                                set_connref_name(tmp.second, name_of_first_connref);
-				printf("new (2) for %p: %s\n", newconnref, name_of_first_connref.c_str());
-                        }else{
-                                fprintf(stderr, "FIXME, pop up dialog and give user a choice here: Merging wire with names %s and %s to %s\n",
-                                        oldname.c_str(), name_of_first_connref.c_str(), name_of_first_connref.c_str());
-                                set_connref_name(tmp.second, name_of_first_connref);
-                        }
-                        name_of_first_connref = "ERROR_THIS_SHOULD_NOT_BE_USED_EITHER";
-			activeconnend = false;
+
+			if(is_same_wire(previous_closestline, closestline)){
+				fprintf(stderr, "Warning: The program does not handle cyclic wire graphs, ignoring this command\n");
+			}else{
+				Avoid::ConnRef *newconnref = new Avoid::ConnRef(router, Avoid::ConnEnd(tmp.first), selectedConnEnd);
+				router->processTransaction();
+				if(name_of_first_connref.size() == 0){
+					set_connref_name(newconnref, get_connref_name(closestline));
+					printf("new (2) for %p: %s\n", newconnref, name_of_first_connref.c_str());
+				}else{
+					fprintf(stderr, "FIXME, pop up dialog and give user a choice here: Merging wire with names %s and %s to %s\n",
+						oldname.c_str(), name_of_first_connref.c_str(), name_of_first_connref.c_str());
+					set_connref_name_all(newconnref, name_of_first_connref);
+				}
+				name_of_first_connref = "ERROR_THIS_SHOULD_NOT_BE_USED_EITHER";
+				activeconnend = false;
+				previous_closestline = NULL;
+			}
 
 		}else{
-		        connref_names[tmp.second] = oldname;
 			selectedConnEnd = Avoid::ConnEnd(tmp.first);
 			temporary_junction = new Avoid::JunctionRef(router,Avoid::Point(x,y));
 			temporary_route = new Avoid::ConnRef(router, Avoid::ConnEnd(temporary_junction), selectedConnEnd);
 			router->processTransaction();
 			activeconnend = true;
                         name_of_first_connref = oldname;
+			previous_closestline = closestline; // Keep track of which wire we split here.
 		}
 
 	}else if((button == 1) && current_gate){
@@ -1455,6 +1498,8 @@ void schematic_design::handle_button(int button, double x, double y)
 	}else if(button == 1){
                 select_closest_obstacle(x, y,true);
 	}
+
+	clean_junction_positions();
 
         if(must_save){
                 debug_save();
@@ -1471,7 +1516,6 @@ void schematic_design::clean_junction_positions()
 		if(j){
 			if(!j->positionFixed()){
 				while(router->shapeContainingPoint(j->position())){
-					printf("MOVE MOVE\n");
 					router->moveJunction(j, j->position() + Avoid::Point(10,10));
 					router->processTransaction();
 				}
@@ -1481,7 +1525,6 @@ void schematic_design::clean_junction_positions()
 		if(j){
 			if(!j->positionFixed()){
 				while(router->shapeContainingPoint(j->position())){
-					printf("MOVE MOVE\n");
 					router->moveJunction(j, j->position() + Avoid::Point(10,10));
 					router->processTransaction();
 				}
@@ -1638,7 +1681,7 @@ void schematic_design::register_verilog_module(struct module *m)
 			int pin = tmp->get_connector_num(stmt->name2);
 			endpin= tmp->getConnEnd(pin);
 			newconnref = new Avoid::ConnRef(router, startpin.back(), endpin);
-			connref_names[newconnref]= current_wirename;
+			set_connref_name(newconnref, current_wirename);
 		}
 		break;
 		case JUNCTION:
@@ -1646,7 +1689,7 @@ void schematic_design::register_verilog_module(struct module *m)
 		    
 			Avoid::JunctionRef *j = new Avoid::JunctionRef(router, Avoid::Point(stmt->x1, stmt->y1));
 			newconnref = new Avoid::ConnRef(router, startpin.back(), Avoid::ConnEnd(j));
-			connref_names[newconnref]= current_wirename;
+			set_connref_name(newconnref, current_wirename);
 			startpin.push_back(Avoid::ConnEnd(j));
 			startpinlevel++;
 		}
@@ -1657,7 +1700,7 @@ void schematic_design::register_verilog_module(struct module *m)
 			Avoid::JunctionRef *j = new Avoid::JunctionRef(router, Avoid::Point(stmt->x1, stmt->y1));
 			j->setPositionFixed(true);
 			newconnref = new Avoid::ConnRef(router, startpin.back(), Avoid::ConnEnd(j));
-			connref_names[newconnref]= current_wirename;
+			set_connref_name(newconnref, current_wirename);
 			startpin.push_back(Avoid::ConnEnd(j));
 			startpinlevel++;
 		}
@@ -1677,7 +1720,7 @@ void schematic_design::register_verilog_module(struct module *m)
 			textg->move(stmt->x1, stmt->y1);
                         if(stmt->x2 > 0){
                                 newconnref = new Avoid::ConnRef(router, startpin.back(), textg->getConnEnd(stmt->x2-1));
-				connref_names[newconnref]= current_wirename;
+				set_connref_name(newconnref, current_wirename);
                         }
 		}
 		break;
@@ -1788,5 +1831,6 @@ schematic_design::schematic_design(const char *filename)
         obstacle_is_selected = false;
 
         closest_obstacle_is_gate = false;
+	previous_closestline = NULL;
         
 }

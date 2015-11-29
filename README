@@ -135,3 +135,10 @@ TODO:
 * Move to an autoconf based configuration?
 * Script to automatically download/compile libavoid if not detected by
   configure?
+
+
+Known bugs:
+
+* Text rotation is not saved. Wires connecting to text blocks are not
+  saved correctly in many situations.
+  
