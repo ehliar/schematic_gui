@@ -185,6 +185,7 @@ void schematic_design::set_connref_name(Avoid::ConnRef *connref, std::string the
 {
         trace_connref(connref, true);
         for(const auto &c : connected_connrefs){
+		printf("Setting on %p", c);
                 connref_names[c] = thename;
         }
         
@@ -1103,6 +1104,8 @@ bool schematic_design::handle_key(int keyval)
 			activeconnend = false;
 			router->deleteJunction(temporary_junction);
 			router->deleteConnector(temporary_route);
+			remove_unused_junctions();
+			clean_wirenames();
 		}else if(closestline){
                         remove_connref_and_fixed_junctions(closestline);
 			closestline = NULL;
@@ -1111,25 +1114,26 @@ bool schematic_design::handle_key(int keyval)
 			clean_wirenames();
 		}
 		router->processTransaction();
-	}else if(keyval == '1'){
+		// Save svg from libavoid for debugging!
+	}else if(!activeconnend && (keyval == '1')){
                 add_gate("add");
-	}else if(keyval == '2'){
+	}else if(!activeconnend && (keyval == '2')){
                 add_gate("mux2");
-	}else if(keyval == '3'){
+	}else if(!activeconnend && (keyval == '3')){
                 add_gate("mux3");
-	}else if(keyval == '4'){
+	}else if(!activeconnend && (keyval == '4')){
                 add_gate("mux4");
-	}else if(keyval == '5'){
+	}else if(!activeconnend && (keyval == '5')){
                 add_gate("mux5");
-	}else if(keyval == '6'){
+	}else if(!activeconnend && (keyval == '6')){
                 add_gate("mux6");
-	}else if(keyval == '7'){
+	}else if(!activeconnend && (keyval == '7')){
                 add_gate("clockedreg");
-	}else if(keyval == '8'){
+	}else if(!activeconnend && (keyval == '8')){
                 add_gate("mult");
-	}else if(keyval == '9'){
+	}else if(!activeconnend && (keyval == '9')){
                 add_gate("box");
-	}else if(keyval == '0'){
+	}else if(!activeconnend && (keyval == '0')){
                 add_gate("bigbox");
         }else if(keyval == 'c'){
                 add_checkpoint_to_closest_line(x,y);
@@ -1400,6 +1404,7 @@ void schematic_design::handle_button(int button, double x, double y)
                         oldname = connref_names[closestline];
                 }
 		std::pair<Avoid::JunctionRef *, Avoid::ConnRef *> tmp = closestline->splitAtSegment(1);
+		
 		router->processTransaction();
 
 		if(activeconnend){
@@ -1409,25 +1414,27 @@ void schematic_design::handle_button(int button, double x, double y)
 			temporary_route = 0;
 			
                         Avoid::ConnRef *newconnref = new Avoid::ConnRef(router, Avoid::ConnEnd(tmp.first), selectedConnEnd);
-                        if(name_of_first_connref.empty()){
-                                connref_names[newconnref] = oldname;
-			printf("new (2) for %p: %s\n", newconnref, name_of_first_connref.c_str());
+			router->processTransaction();
+                        if(name_of_first_connref.size() == 0){
+                                set_connref_name(tmp.second, name_of_first_connref);
+				printf("new (2) for %p: %s\n", newconnref, name_of_first_connref.c_str());
                         }else{
                                 fprintf(stderr, "FIXME, pop up dialog and give user a choice here: Merging wire with names %s and %s to %s\n",
                                         oldname.c_str(), name_of_first_connref.c_str(), name_of_first_connref.c_str());
-                                set_connref_name(newconnref, name_of_first_connref);
+                                set_connref_name(tmp.second, name_of_first_connref);
                         }
                         name_of_first_connref = "ERROR_THIS_SHOULD_NOT_BE_USED_EITHER";
 			activeconnend = false;
 
 		}else{
+		        connref_names[tmp.second] = oldname;
 			selectedConnEnd = Avoid::ConnEnd(tmp.first);
 			temporary_junction = new Avoid::JunctionRef(router,Avoid::Point(x,y));
 			temporary_route = new Avoid::ConnRef(router, Avoid::ConnEnd(temporary_junction), selectedConnEnd);
+			router->processTransaction();
 			activeconnend = true;
                         name_of_first_connref = oldname;
 		}
-		router->processTransaction();
 
 	}else if((button == 1) && current_gate){
                 must_save = true;
