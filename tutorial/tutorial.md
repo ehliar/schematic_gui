@@ -3,7 +3,7 @@
 The goal of this tutorial is to learn enough to create the schematic
 seen below.
 
-![Screenshot1](/master/tutorial/goal.png?raw=true)
+![Screenshot1](/tutorial/goal.png?raw=true)
 
 # Introduction
 
@@ -31,7 +31,7 @@ mouse key. Your screen should now look like this (the red ring in the
 screenshot is the port that is closest to the mouse cursor and will
 change depending on where you move your mouse cursor).
 
-![Screenshot0](/master/tutorial/screen0.png?raw=true)
+![Screenshot0](/tutorial/screen0.png?raw=true)
 
 
 
@@ -42,7 +42,7 @@ again, the component will appear near the mouse pointer. Move the
 cursor until the mux is placed roughly as shown below and press the
 left mouse button.
 
-![Screenshot1](/master/tutorial/screen1.png?raw=true)
+![Screenshot1](/tutorial/screen1.png?raw=true)
 
 If you are not satisfied with the placement of a component you can
 move *the closest* component by pressing the left mouse button once
@@ -60,10 +60,10 @@ port of the mux is selected as shown below. Note that you don't need
 to touch the port, or even be near it, as long as *the port is the
 closest port to the mouse cursor*.
 
-![Screenshot2](/master/tutorial/screen2.png?raw=true)
+![Screenshot2](/tutorial/screen2.png?raw=true)
 
 Press the middle mouse button once to connect a wire to this port. A
 wire will appear as shown below.
 
-![Screenshot3](/master/tutorial/screen3.png?raw=true)
+![Screenshot3](/tutorial/screen3.png?raw=true)
 
