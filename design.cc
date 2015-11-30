@@ -1117,10 +1117,10 @@ bool schematic_design::handle_key(int keyval)
 	}else if(keyval == 'P'){
 		router->outputInstanceToSVG("debug");
         }else if(keyval == 'D'){
-                remove_closest_object(lastx, lasty);
+                remove_closest_object(x, y);
                 remove_unused_junctions();
 		clean_wirenames();
-                refresh_highlighted_objects(x,y);
+                refresh_highlighted_objects(lastx,lasty);
         }else if(keyval == GDK_KEY_Right){
 		cairo_translation_x += 16;
 	}else if(keyval == GDK_KEY_Left){
