@@ -344,6 +344,7 @@ void schematic_design::draw_connref(cairo_t *cr, Avoid::ConnRef *connref, bool i
 		return;
 	}
 	cairo_save(cr);
+	// FIXME: Rename connected_connrefs here. Should have another name!
 	if(connected_connrefs.count(connref) > 0){
 		if(is_ui){
 			cairo_set_source_rgb (cr, 1, 0.5, 0.5);
@@ -352,6 +353,11 @@ void schematic_design::draw_connref(cairo_t *cr, Avoid::ConnRef *connref, bool i
 	if(connref == closestline){
 		if(is_ui){
 			cairo_set_source_rgb (cr, 1, 0.0, 0.0);
+		}
+	}
+	if(connref == temporary_route){
+		if(is_ui){
+			cairo_set_source_rgb(cr, 0,0,0.5);
 		}
 	}
 	cairo_move_to(cr, ps[0].x, ps[0].y);
@@ -535,9 +541,15 @@ void schematic_design::draw_with_cairo(cairo_t *cr, bool is_ui)
 		if(is_ui){
                         if((closest_gate == g) && closest_obstacle_is_gate){
 				cairo_set_source_rgb (cr, 0.5, 0.2, 0.2);
+				if(current_gate){
+					cairo_set_source_rgb (cr, 0, 0, 0.5);
+				}
                         }
 			if(selected_gates.find(g) != selected_gates.end()){
 				cairo_set_source_rgb (cr, 0.5, 0.0, 0.0);
+				if(current_gate){
+					cairo_set_source_rgb (cr, 0, 0, 0.5);
+				}
 			}
                         
 		}
