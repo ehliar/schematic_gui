@@ -1101,9 +1101,10 @@ void schematic_design::create_new_text_and_attach(double x, double y, const char
         router->processTransaction();
 	create_new_wirename(tmp);
 }
-void schematic_design::add_gate(std::string gatename)
+void schematic_design::add_gate(std::string gatename,double x, double y)
 {
         current_gate = create_new_gate(gatename.c_str());
+	current_gate->move(x,y);
         if(!current_gate){
                 obstacle_is_selected = false;
                 current_gate_is_closest = false;
@@ -1158,25 +1159,25 @@ bool schematic_design::handle_key(int keyval)
 		router->processTransaction();
 		// Save svg from libavoid for debugging!
 	}else if(!activeconnend && (keyval == '1')){
-                add_gate("add");
+		add_gate("add", x, y);
 	}else if(!activeconnend && (keyval == '2')){
-                add_gate("mux2");
+		add_gate("mux2", x, y);
 	}else if(!activeconnend && (keyval == '3')){
-                add_gate("mux3");
+                add_gate("mux3", x, y);
 	}else if(!activeconnend && (keyval == '4')){
-                add_gate("mux4");
+                add_gate("mux4", x, y);
 	}else if(!activeconnend && (keyval == '5')){
-                add_gate("mux5");
+                add_gate("mux5", x, y);
 	}else if(!activeconnend && (keyval == '6')){
-                add_gate("mux6");
+                add_gate("mux6", x, y);
 	}else if(!activeconnend && (keyval == '7')){
-                add_gate("clockedreg");
+                add_gate("clockedreg", x, y);
 	}else if(!activeconnend && (keyval == '8')){
-                add_gate("mult");
+                add_gate("mult", x, y);
 	}else if(!activeconnend && (keyval == '9')){
-                add_gate("box");
+                add_gate("box", x, y);
 	}else if(!activeconnend && (keyval == '0')){
-                add_gate("bigbox");
+                add_gate("bigbox", x, y);
         }else if(keyval == 'c'){
                 add_checkpoint_to_closest_line(x,y);
 	}else if(keyval == 'r'){

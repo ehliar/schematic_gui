@@ -100,7 +100,7 @@ public:
         double check_distance(double x1, double y1, double x2, double y2);
         double check_distance(double x1, double y1, Avoid::JunctionRef *j);
         gate * create_new_gate(const char *filename, const char *instname = NULL);
-        void add_gate(std::string gatename);
+        void add_gate(std::string gatename, double x, double y);
         void draw_junction(cairo_t *cr, Avoid::JunctionRef *j, bool is_ui);
         void draw_checkpoint(cairo_t *cr, Avoid::Checkpoint c);
         void draw_connref(cairo_t *cr, Avoid::ConnRef *connref, bool is_ui);
