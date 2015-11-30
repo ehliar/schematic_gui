@@ -145,6 +145,7 @@ gboolean schematic_gui::do_new(GtkWidget *widget, gpointer user_data)
 	delete sg->thedesign; // FIXME: Deletion handler!
 	sg->thedesign = new schematic_design(NULL);
 	sg->current_filename = "";
+	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
 	return FALSE;
 }
 
@@ -170,8 +171,39 @@ gboolean schematic_gui::do_open(GtkWidget *widget, gpointer user_data)
 
 	sg->thedesign = new schematic_design(newfile.c_str());
 	sg->set_filename(newfile);
+	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
 	return FALSE;
 }
+
+gboolean schematic_gui::do_recover(GtkWidget *widget, gpointer user_data)
+{
+	schematic_gui *sg = static_cast<schematic_gui *>(user_data);
+	GtkWidget *chooser = gtk_file_chooser_dialog_new("Open schematic file...",
+							 GTK_WINDOW(sg->window),
+							 GTK_FILE_CHOOSER_ACTION_OPEN, 
+							 "_Cancel", GTK_RESPONSE_CANCEL,
+							 "_Open", GTK_RESPONSE_ACCEPT,
+							 NULL);
+
+	if(sg->current_filename.length() > 0){
+		gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(chooser), sg->current_filename.c_str());
+	}
+	std::string recoverdir = getenv("HOME");
+	recoverdir = recoverdir + "/.schematic_gui/";
+	gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(chooser), recoverdir.c_str());
+
+	std::string newfile = do_dialog(chooser);
+	if(newfile.length() == 0){
+		return FALSE;
+	}
+	delete sg->thedesign;
+
+	sg->thedesign = new schematic_design(newfile.c_str());
+	sg->set_filename(std::string("Recover.v"));
+	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
+	return FALSE;
+}
+
 gboolean schematic_gui::do_about(GtkWidget *widget, gpointer user_data)
 {
 	const gchar *authors[2] = { "Andreas Ehliar", NULL};
@@ -386,6 +418,7 @@ schematic_gui::schematic_gui(schematic_design *design, const char *filename)
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_save", G_CALLBACK(do_save));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_new", G_CALLBACK(do_new));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_open", G_CALLBACK(do_open));
+	gtk_builder_add_callback_symbol(build, "schematic_gui::do_recover", G_CALLBACK(do_recover));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_about", G_CALLBACK(do_about));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_export", G_CALLBACK(do_export));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_show_help", G_CALLBACK(do_show_help));

@@ -45,6 +45,7 @@ private:
 	
         static gboolean do_new(GtkWidget *widget, gpointer user_data);
         static gboolean do_open(GtkWidget *widget, gpointer user_data);
+        static gboolean do_recover(GtkWidget *widget, gpointer user_data);
         static gboolean do_save(GtkWidget *widget, gpointer user_data);
         static gboolean do_save_as(GtkWidget *widget, gpointer user_data);
         static gboolean do_about(GtkWidget *widget, gpointer user_data);
