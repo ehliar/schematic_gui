@@ -46,7 +46,7 @@ static void set_color(cairo_t *cr, colortype_t color )
 	switch(color){
 	case NORMAL: cairo_set_source_rgb(cr, 0,0,0); break;
 	case CLOSEST_WIRESEGMENT: cairo_set_source_rgb(cr, 1,0,0); break;
-	case CLOSEST_WIRE: cairo_set_source_rgb(cr, 0.4,0,0); break;
+	case CLOSEST_WIRE: cairo_set_source_rgb(cr, 0.7,0,0); break;
 	case CLOSEST_GATE: cairo_set_source_rgb(cr, 1,0,0); break;
 	case MOVING_WIRE: cairo_set_source_rgb(cr, 0,0,0.5); break;
 	case MOVING_GATE: cairo_set_source_rgb(cr, 0,0,0.5); break;
