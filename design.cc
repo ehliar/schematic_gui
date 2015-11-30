@@ -892,25 +892,24 @@ void schematic_design::add_checkpoint_to_closest_line(double x, double y)
 
 	set_connref_name(tmp.second,wirename);
 
-	obstacle_is_selected = false;
+	obstacle_is_selected = true;
 	current_gate_is_closest = false;
-        
+	closest_fixed_junction = tmp.first;
+
+	current_gate = closest_gate; // FIXME: Ugly hack, this design choice needs to change.
 }
 
 void schematic_design::clean_wirenames()
 {
 	std::unordered_set<Avoid::ConnRef *> valid_connrefs;
 	for(const auto & c : router->connRefs){
-		printf("Emplaced %p\n", c);
 		valid_connrefs.emplace(c);
 	}
 	std::unordered_map<Avoid::ConnRef *, std::string> new_names;
 	for(const auto & c : connref_names){
-		printf("Looking for %p\n", c.first);
 		if(valid_connrefs.count(c.first) > 0){
 			assert(c.second.size() > 0);
 			new_names[c.first] = c.second;
-			printf("Added wirename %s\n", c.second.c_str());
 		}
 	}
 	connref_names = new_names;
@@ -1079,7 +1078,7 @@ void schematic_design::create_new_text_and_attach(double x, double y, const char
         double distx, disty;
 	const char *tmpstr;
 
-        obstacle_is_selected = true;
+        obstacle_is_selected = false;
         current_gate_is_closest = true;
         current_gate = create_new_gate(".text");
 
