@@ -36,9 +36,26 @@
 
 #include "design.hh"
 
+typedef enum { NORMAL, CLOSEST_WIRESEGMENT, CLOSEST_WIRE,
+	       CLOSEST_GATE, MOVING_WIRE, MOVING_GATE,
+	       HIGHLIGHTED_FEATURE,
+               } colortype_t;
 
-
-
+static void set_color(cairo_t *cr, colortype_t color )
+{
+	switch(color){
+	case NORMAL: cairo_set_source_rgb(cr, 0,0,0); break;
+	case CLOSEST_WIRESEGMENT: cairo_set_source_rgb(cr, 1,0,0); break;
+	case CLOSEST_WIRE: cairo_set_source_rgb(cr, 0.4,0,0); break;
+	case CLOSEST_GATE: cairo_set_source_rgb(cr, 1,0,0); break;
+	case MOVING_WIRE: cairo_set_source_rgb(cr, 0,0,0.5); break;
+	case MOVING_GATE: cairo_set_source_rgb(cr, 0,0,0.5); break;
+	case HIGHLIGHTED_FEATURE: cairo_set_source_rgb(cr, 1.0,0.5,0.5); break;
+	default:
+		fprintf(stderr, "WARNING: Unknown wirecolor\n");
+		cairo_set_source_rgb(cr,1,1,0);
+	}
+}
 
 extern int start_token;
 extern int yyparse(void);
@@ -306,7 +323,7 @@ void schematic_design::draw_junction(cairo_t *cr, Avoid::JunctionRef *j, bool is
 
 		cairo_save(cr);
 		if(selected_fixed_junctions.find(j) != selected_fixed_junctions.end()){
-                        cairo_set_source_rgb (cr, 0.5, 0.2, 0.2);
+			set_color(cr, CLOSEST_WIRE);
 		}			
 		x = j->position().x;
 		y = j->position().y;		
@@ -347,17 +364,17 @@ void schematic_design::draw_connref(cairo_t *cr, Avoid::ConnRef *connref, bool i
 	// FIXME: Rename connected_connrefs here. Should have another name!
 	if(connected_connrefs.count(connref) > 0){
 		if(is_ui){
-			cairo_set_source_rgb (cr, 1, 0.5, 0.5);
+			set_color(cr, CLOSEST_WIRE);
 		}
 	}
 	if(connref == closestline){
 		if(is_ui){
-			cairo_set_source_rgb (cr, 1, 0.0, 0.0);
+			set_color(cr, CLOSEST_WIRESEGMENT);
 		}
 	}
 	if(connref == temporary_route){
 		if(is_ui){
-			cairo_set_source_rgb(cr, 0,0,0.5);
+			set_color(cr, MOVING_WIRE);
 		}
 	}
 	cairo_move_to(cr, ps[0].x, ps[0].y);
@@ -525,12 +542,10 @@ void schematic_design::draw_with_cairo(cairo_t *cr, bool is_ui)
                 cairo_stroke(cr);
                 
         }
-        cairo_set_source_rgb(cr, 0, 0, 0);
-     
-
+	
 
         // Draw connectors
-        cairo_set_source_rgb(cr, 0, 0, 0);
+	set_color(cr, NORMAL);
         cairo_set_line_width(cr, 3);
         for(const auto &c : router->connRefs){
                 draw_connref(cr,c, is_ui);
@@ -540,15 +555,15 @@ void schematic_design::draw_with_cairo(cairo_t *cr, bool is_ui)
 		cairo_save(cr);
 		if(is_ui){
                         if((closest_gate == g) && closest_obstacle_is_gate){
-				cairo_set_source_rgb (cr, 0.5, 0.2, 0.2);
-				if(current_gate){
-					cairo_set_source_rgb (cr, 0, 0, 0.5);
+				set_color(cr, CLOSEST_GATE);
+				if(current_gate == g){
+					set_color(cr, MOVING_GATE);
 				}
                         }
 			if(selected_gates.find(g) != selected_gates.end()){
-				cairo_set_source_rgb (cr, 0.5, 0.0, 0.0);
-				if(current_gate){
-					cairo_set_source_rgb (cr, 0, 0, 0.5);
+				set_color(cr, CLOSEST_GATE);
+				if(current_gate == g){
+					set_color(cr, MOVING_GATE);
 				}
 			}
                         
@@ -561,7 +576,7 @@ void schematic_design::draw_with_cairo(cairo_t *cr, bool is_ui)
         if(!is_ui){
                 return;
         }
-        cairo_set_source_rgb (cr, 1, 0.2, 0.2);
+	set_color(cr, HIGHLIGHTED_FEATURE);
         if(closest_fixed_junction && !closest_obstacle_is_gate){
 //                cairo_move_to(cr,closest_fixed_junction->position().x, closest_fixed_junction->position().y);
                 cairo_arc(cr, closest_fixed_junction->position().x, closest_fixed_junction->position().y, 20,0,2*M_PI);
@@ -1112,6 +1127,7 @@ void schematic_design::add_gate(std::string gatename,double x, double y)
                 obstacle_is_selected = true;
                 current_gate_is_closest = true;
         }
+	refresh_highlighted_objects(x,y);
 }
 
 // FIXME: Move interface related stuff to designgui.cc.
