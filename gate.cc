@@ -210,7 +210,6 @@ void gate::settext(std::string newtext)
 std::string gate::get_connector_name(int num)
 {
 	
-	printf("%s: get connector name %d\n", instancename.c_str(), num);
         return portnames[num];
 }
 int gate::get_connector_num(std::string name)
