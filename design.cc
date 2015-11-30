@@ -1490,7 +1490,6 @@ void schematic_design::handle_button(int button, double x, double y)
 				router->processTransaction();
 				if(name_of_first_connref.size() == 0){
 					set_connref_name(newconnref, get_connref_name(closestline));
-					printf("new (2) for %p: %s\n", newconnref, name_of_first_connref.c_str());
 				}else{
 					fprintf(stderr, "FIXME, pop up dialog and give user a choice here: Merging wire with names %s and %s to %s\n",
 						oldname.c_str(), name_of_first_connref.c_str(), name_of_first_connref.c_str());
