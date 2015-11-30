@@ -137,8 +137,11 @@ These components are added to the schematic by pressing the corresponding key.
 * Better documentation
 * Code cleanups (Right now the code doesn't even pretend to follow any
   decent design patterns for GUI:s such as MVC.)
-* Junctions in libavoid are acting up (see the undocumented 'U' command)
+* Junctions in libavoid are acting up. A workaround is included in
+  clean_junction_positions().  This should be investigated more and if
+  possible the workaround should be removed.
 * Export to other formats than SVG
+* Export current view to clipboard
 * Allow component symbols to be specified using SVG (perhaps using
   librsvg to read these symbols?)
 * Add a better way to add components
@@ -158,3 +161,5 @@ These components are added to the schematic by pressing the corresponding key.
 * Move to an autoconf based configuration?
 * Script to automatically download/compile libavoid if not detected by
   configure?
+* Add status bar to make it easier for users to see what is going on.
+* Add a tutorial of some sort.
