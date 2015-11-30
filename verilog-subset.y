@@ -503,7 +503,17 @@ schematic_stmt: TOK_BOUNDINGBOX TOK_LEFTPAREN TOK_INTEGER TOK_COMMA TOK_INTEGER 
 			$$ = create_schematic_statement(SETPOS, $3, NULL, $5, $7,0,0);
                 }
                 |
+		TOK_SETGATEPOS TOK_LEFTPAREN TOK_STRING TOK_COMMA TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON
+                {
+			$$ = create_schematic_statement(SETPOS, $3, NULL, $5, $7,0,0);
+                }
+                |
 		TOK_SETGATEROT TOK_LEFTPAREN TOK_IDENTIFIER TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON
+                {
+			$$ = create_schematic_statement(SETROT, $3, NULL, $5, 0,0,0);
+                }
+                |
+		TOK_SETGATEROT TOK_LEFTPAREN TOK_STRING TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON
                 {
 			$$ = create_schematic_statement(SETROT, $3, NULL, $5, 0,0,0);
                 }
@@ -513,9 +523,39 @@ schematic_stmt: TOK_BOUNDINGBOX TOK_LEFTPAREN TOK_INTEGER TOK_COMMA TOK_INTEGER 
 			$$ = create_schematic_statement(STARTROUTE, $3, $5,0,0,0,0);
 		}
                 |
+		TOK_STARTROUTE TOK_LEFTPAREN TOK_STRING TOK_RIGHTPAREN TOK_SEMICOLON
+		{
+			char *tmp = strdup($3);
+			char *ident = index(tmp,'.');
+			if(!ident){
+				fprintf(stderr,"No . in string sent to $schematic_startroute\n");
+				YYERROR;
+			}
+			*ident = 0;
+			ident = ident + 1;
+			printf("FOUND %s  .  %s\n", tmp, ident);
+			$$ = create_schematic_statement(STARTROUTE, tmp, ident,0,0,0,0);
+			free($3);
+		}
+                |
 		TOK_ENDROUTE TOK_LEFTPAREN TOK_IDENTIFIER TOK_POINT TOK_IDENTIFIER TOK_RIGHTPAREN TOK_SEMICOLON
 		{
 			$$ = create_schematic_statement(ENDROUTE, $3, $5,0,0,0,0);
+		}
+                |
+		TOK_ENDROUTE TOK_LEFTPAREN TOK_STRING TOK_RIGHTPAREN TOK_SEMICOLON
+		{
+			char *tmp = strdup($3);
+			char *ident = index(tmp,'.');
+			if(!ident){
+				fprintf(stderr,"No . in string sent to $schematic_startroute\n");
+				YYERROR;
+			}
+			*ident = 0;
+			ident = ident + 1;
+			printf("FOUND %s  .  %s\n", tmp, ident);
+			$$ = create_schematic_statement(ENDROUTE, tmp, ident,0,0,0,0);
+			free($3);
 		}
                 |
 		TOK_JUNCTION TOK_LEFTPAREN TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON
@@ -538,14 +578,9 @@ schematic_stmt: TOK_BOUNDINGBOX TOK_LEFTPAREN TOK_INTEGER TOK_COMMA TOK_INTEGER 
                         $$ = create_schematic_statement(SYMBOLTEXT, $3, NULL,$5, $7,0,0);
 		}
                 |
-		TOK_TEXT  TOK_LEFTPAREN TOK_STRING TOK_COMMA TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON
+		TOK_TEXT  TOK_LEFTPAREN TOK_STRING TOK_COMMA TOK_STRING TOK_RIGHTPAREN TOK_SEMICOLON
 		{
-		  $$ = create_schematic_statement(SCHEMATICTEXT, $3, NULL,$5, $7,$9,0);
-		}
-                |
-		TOK_STARTTEXT  TOK_LEFTPAREN TOK_STRING TOK_COMMA TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON
-		{
-		  $$ = create_schematic_statement(SCHEMATICSTARTTEXT, $3, NULL,$5, $7,$9,0);
+		  $$ = create_schematic_statement(SCHEMATICTEXT, $3, $5, 0,0,0,0);
 		}
                 ;
 	

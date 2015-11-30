@@ -191,8 +191,28 @@ void gate::settext(std::string newtext)
 	invpin.push_back(false);
 	invpin.push_back(false);
 	invpin.push_back(false);
-}
 
+
+	ports.clear();
+	portnames.clear();
+
+	ports["l"] = 1;
+	ports["r"] = 2;
+	ports["d"] = 3;
+	ports["u"] = 3;
+	portnames[1] = "l";
+	portnames[2] = "r";
+	portnames[3] = "d";
+	portnames[4] = "u";
+	maxconnector = 4;
+	
+}
+std::string gate::get_connector_name(int num)
+{
+	
+	printf("%s: get connector name %d\n", instancename.c_str(), num);
+        return portnames[num];
+}
 int gate::get_connector_num(std::string name)
 {
 	if(!ports.count(name)){
@@ -317,11 +337,16 @@ gate::gate(Avoid::Router *r, const char *filename)
 		settext("");
 		middle_x = 0;
 		middle_y = 0;
+
 		return;
 	}
 
 	maxx=0;
 	maxy=0;
+
+	fprintf(stderr,"Error, we should never get here!\n");
+	abort();
+	
 	FILE * fp = fopen(filename,"r");
 	char buf[100];
 	buf[99] = 0;

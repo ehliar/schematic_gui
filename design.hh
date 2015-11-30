@@ -18,6 +18,7 @@
 #ifndef _DESIGN_HH
 #define _DESIGN_HH
 
+#define SCHEMATIC_VERSION "0.65"
 
 class schematic_design {
 

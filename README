@@ -137,8 +137,3 @@ TODO:
   configure?
 
 
-Known bugs:
-
-* Text rotation is not saved. Wires connecting to text blocks are not
-  saved correctly in many situations.
-  

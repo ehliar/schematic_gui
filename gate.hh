@@ -62,12 +62,14 @@ private:
 
         std::string name;
 	std::string instancename;
+
+
 public:
 	void setinstancename(std::string n) {instancename = n;}
 	std::string getinstancename() {return instancename;}
         unsigned int maxpins() {return maxconnector;}
         int get_connector_num(std::string name);
-        std::string get_connector_name(int num) { return portnames[num]; }
+        std::string get_connector_name(int num);
         void toggleinv(unsigned int pinno);
 	bool isinverted(unsigned int pin);
         bool istext;
