@@ -223,3 +223,36 @@ pleasing as shown below:
 ![Screenshot19](/tutorial/screen19.png?raw=true)
 
 
+# Print preview, saving, and exporting
+
+## Print preview
+
+The design window contains a number of features that are desirable
+when editing the text but are undesirable when exporting a schematic
+for documentation purposes:
+
+* Highlighted components and wires
+* Highlighted ports
+* Crossmarks indicating checkpoints
+* Gray rectangles behind text strings
+
+When exporting the schematic to SVG format (using the Export command
+under the File menu) none of these features are included in the
+exported schematic. To show the schematic without these features, you
+can toggle between normal editing mode and print preview mode using
+the key **p**. Your schematic should now look as below:
+
+![GoalScreenshot](/tutorial/goal.png?raw=true)
+
+## Saving
+When saving (using the save command in the file menu), the design is
+saved in a Verilog-like syntax where system task functions are used
+for the actual schematic commands. (At the moment the file is not
+guaranteed to be compilable using a Verilog compiler however, although
+this is intended to be fixed in the future.) (It is also possible to
+save the schematic using the **ctrl-s** command.)
+
+## Exporting
+Right now, schematic_gui only supports export to the SVG file format
+using the Export command in the File menu.
+
