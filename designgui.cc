@@ -208,6 +208,8 @@ gboolean schematic_gui::do_about(GtkWidget *widget, gpointer user_data)
 {
 	const gchar *authors[2] = { "Andreas Ehliar", NULL};
 	GtkWidget *about = gtk_about_dialog_new();
+	gtk_about_dialog_set_website(GTK_ABOUT_DIALOG(about), "http://github.com/ehliar/schematic_gui");
+	gtk_about_dialog_set_website_label(GTK_ABOUT_DIALOG(about), "http://github.com/ehliar/schematic_gui");
 	gtk_about_dialog_set_program_name(GTK_ABOUT_DIALOG(about), "schematic_gui");
 	gtk_about_dialog_set_version (GTK_ABOUT_DIALOG(about), SCHEMATIC_VERSION);
 	gtk_about_dialog_set_copyright (GTK_ABOUT_DIALOG(about), "(C) Andreas Ehliar 2015");
