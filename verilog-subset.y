@@ -462,9 +462,13 @@ moduleinst:        TOK_IDENTIFIER parameter_insts TOK_IDENTIFIER TOK_LEFTPAREN s
         ;
 
 
-initial_block: TOK_INITIAL TOK_BEGIN schematic_stmts TOK_END {
+initial_block: TOK_INITIAL TOK_BEGIN TOK_END {
+	                $$ = NULL;
+		}
+               |
+               TOK_INITIAL TOK_BEGIN schematic_stmts TOK_END {
 	                $$ = $3;
-		};
+	       };
 
 schematic_stmt: TOK_BOUNDINGBOX TOK_LEFTPAREN TOK_INTEGER TOK_COMMA TOK_INTEGER TOK_RIGHTPAREN TOK_SEMICOLON {
 	$$ = create_schematic_statement(BOUNDINGBOX, NULL,NULL,$3,$5,0,0);

@@ -20,6 +20,7 @@
 #include "gate.hh"
 #include <string.h>
 #include <string>
+#include <stack>
 #include <unordered_set>
 #include <unordered_map>
 #include <math.h>
@@ -270,6 +271,24 @@ gboolean schematic_gui::press_key(GtkWidget *widget, GdkEvent *ev, gpointer user
 		if(k->state & GDK_CONTROL_MASK){
 			do_save(NULL, user_data);
 		}
+        }else if(k->keyval == 'z'){ // ctrl-z for undo
+		if(k->state & GDK_CONTROL_MASK){
+                        std::stack<std::string> undo_filenames = sg->thedesign->get_undo_filenames();
+                        if(!undo_filenames.empty()){
+                                undo_filenames.pop();
+                                if(!undo_filenames.empty()){
+                                        std::string newfilename = undo_filenames.top();
+                                        std::string oldfilename = sg->current_filename;
+                                        delete sg->thedesign;
+                                        printf("Trying to restore %s\n", newfilename.c_str());
+                                        sg->thedesign = new schematic_design(newfilename.c_str());
+                                        sg->set_filename(oldfilename);
+                                        sg->thedesign->set_undo_filenames(undo_filenames);
+                                        must_invalidate = true;
+                                }
+                        }
+		}
+                
         }else{
                 must_invalidate = sg->thedesign->handle_key(k->keyval);
         }

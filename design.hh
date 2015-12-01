@@ -80,13 +80,20 @@ private:
         FILE *logfp;
         double lastx, lasty;
 
+        std::stack<std::string> undo_filenames;
+        
+        
 	void create_new_wirename(Avoid::ConnRef *connref);
 	void debug_save();
 	void clean_wirenames();
         void clean_junction_positions();
         bool is_same_wire(Avoid::ConnRef *connref1, Avoid::ConnRef *connref2);
         // FIXME: Move private stuff to private:
+
+
 public:
+        std::stack<std::string> get_undo_filenames(){ return undo_filenames; };
+        void set_undo_filenames(std::stack<std::string> filenames){ undo_filenames = filenames; };
         void update_viewport(double x, double y, double scaling) {
                 cairo_translation_x = x;
                 cairo_translation_y = y;

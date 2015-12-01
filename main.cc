@@ -19,6 +19,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 #include <string>
+#include <stack>
 #include <unordered_set>
 #include <unordered_map>
 #include <math.h>

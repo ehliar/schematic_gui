@@ -19,6 +19,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <string.h>
 #include <string>
+#include <stack>
 #include <unordered_set>
 #include <unordered_map>
 #include <math.h>
@@ -1305,6 +1306,8 @@ void schematic_design::debug_save()
         mkdir(save_name.c_str(), 0700); // Create save directory if it doesn't exist
         save_name = save_name + "/backup_" + std::string(buf) + ".v";
         save_verilog(save_name);
+        printf("Saving %s\n", save_name.c_str());
+        undo_filenames.push(save_name);
                 
 }
 

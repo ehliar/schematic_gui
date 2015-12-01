@@ -33,6 +33,7 @@ List of keyboard operations:
 * s: Adds a component to the current selection
 * S: Unselects all components
 * p: Print preview (disables all highlighted components, checkpoints, etc)
+* Ctrl-z: Experimental undo supports
 * Ctrl-s: Saves the current design (hint, save often and using different
   filenames, this program is not really stable yet)
 

@@ -158,7 +158,8 @@ These components are added to the schematic by pressing the corresponding key.
   in the GUI. (But they can't be saved correctly in some
   situations. This should probably be fixed (either by disallowing
   their creation or by allowing them to be saved as well).
-* There is no way to undo an operation at this point unfortunately.
+* The undo functionality is very experimental at this point and saves
+  a little too much information in the undo stack.
 * Add a way to include optional wires in symbols. (E.g., if something
   is connected to this port the line will be included, otherwise it
   will be omitted.)
