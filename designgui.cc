@@ -64,6 +64,30 @@ std::string schematic_gui::do_dialog(GtkWidget *dialog)
 	return retstring;
 }
 
+gboolean schematic_gui::do_export_clipboard(GtkWidget *widget, gpointer user_data)
+{
+	schematic_gui *sg = static_cast<schematic_gui *>(user_data);
+
+	
+	GtkAllocation* alloc = g_new(GtkAllocation, 1);
+	gtk_widget_get_allocation(sg->da, alloc);
+	printf("widget size is currently %dx%d\n",alloc->width, alloc->height);
+	
+	cairo_surface_t *surface;
+	surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, alloc->width, alloc->height);
+	cairo_t *cr = cairo_create(surface);
+	sg->thedesign->draw_with_cairo(cr, false);
+	GdkPixbuf *pixbuf = gdk_pixbuf_get_from_surface(surface, 0,0,alloc->width, alloc->height);
+	GtkClipboard *clipboard = gtk_clipboard_get(GDK_SELECTION_CLIPBOARD);
+
+	gtk_clipboard_set_image(clipboard, pixbuf);
+	g_object_unref(pixbuf);
+		
+	g_free(alloc);
+	
+	return FALSE;
+}
+
 gboolean schematic_gui::do_export(GtkWidget *widget, gpointer user_data)
 {
 	schematic_gui *sg = static_cast<schematic_gui *>(user_data);
@@ -432,6 +456,7 @@ schematic_gui::schematic_gui(schematic_design *design, const char *filename)
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_recover", G_CALLBACK(do_recover));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_about", G_CALLBACK(do_about));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_export", G_CALLBACK(do_export));
+	gtk_builder_add_callback_symbol(build, "schematic_gui::do_export_clipboard", G_CALLBACK(do_export_clipboard));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_show_help", G_CALLBACK(do_show_help));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_show_tutorial", G_CALLBACK(do_show_tutorial));
 	gtk_builder_connect_signals(build, this);

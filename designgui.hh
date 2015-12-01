@@ -51,6 +51,7 @@ private:
         static gboolean do_save_as(GtkWidget *widget, gpointer user_data);
         static gboolean do_about(GtkWidget *widget, gpointer user_data);
         static gboolean do_export(GtkWidget *widget, gpointer user_data);
+        static gboolean do_export_clipboard(GtkWidget *widget, gpointer user_data);
   
         static gboolean configure_event(GtkWidget *widget, GdkEvent *ev, gpointer data);
         static gboolean draw_cb(GtkWidget *widget, cairo_t *cr, gpointer data);

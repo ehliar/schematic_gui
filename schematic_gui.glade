@@ -73,11 +73,20 @@
                 </child>
                 <child>
                   <object class="GtkImageMenuItem" id="imagemenuitem5">
-                    <property name="label">Export</property>
+                    <property name="label">Export to SVG</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="use_underline">True</property>
 		    <signal name="activate" handler="schematic_gui::do_export"/>
+                  </object>
+		</child>
+                <child>
+                  <object class="GtkImageMenuItem" id="imagemenuitem50">
+                    <property name="label">Export to clipboard</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_underline">True</property>
+		    <signal name="activate" handler="schematic_gui::do_export_clipboard"/>
                   </object>
 		</child>
 
