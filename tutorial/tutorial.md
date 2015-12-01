@@ -253,8 +253,11 @@ this is intended to be fixed in the future.) (It is also possible to
 save the schematic using the **ctrl-s** command.)
 
 ## Exporting
-Right now, schematic_gui only supports export to the SVG file format
-using the Export command in the File menu.
+Right now, schematic_gui only supports exporting to the SVG file
+format using the Export command in the File menu and exporting the
+current view of the schematic to the clipboard (may be useful if you
+want to copy/paste into OpenOffice while writing documentation for
+example).
 
 # FAQ
 

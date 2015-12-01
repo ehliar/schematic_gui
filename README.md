@@ -23,6 +23,7 @@ purposes.
   goal is that a file saved with schematic_gui should be
   synthesizable, but that is not quite possible yet.)
 * Exports to SVG file format
+* Exports current view to clipboard
 
 
 See the <a href="tutorial/tutorial.md">tutorial</a> for more
