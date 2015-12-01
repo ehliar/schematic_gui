@@ -7,9 +7,8 @@ seen below.
 
 # Introduction
 
-At this point there is no **easy** way to undo an operation in
-schematic_gui. However, the following commands may be helpful if you
-make a mistake.
+The following commands may be helpful if you make a mistake during the
+tutorial:
 
 * To delete the component closest to the mouse (highlighted in bright
   red), press the key **shift-d**. This will remove the component and
@@ -17,6 +16,10 @@ make a mistake.
 * To delete the wire segment closest to the mouse (highlighted in
   bright red), press the key **d**. (When drawing a new wire you can
   also use **d** to cancel the wire drawing operation.)
+* To undo an operation, use the **ctrl-z** command. Note that this is
+  very experimental at this point and you might have to press ctrl-z a
+  few times to actually undo the change you want to undo (since
+  schematic_gui saves its state a bit too often)
 
 
 # First steps, create and place initial components
@@ -307,3 +310,4 @@ You should now know the following commands
 * **shift-e**: Edit text
 * **c**: Place checkpoint
 * **p**: Toggle print preview mode
+* **ctrl-z**: Undo
