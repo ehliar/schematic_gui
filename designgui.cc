@@ -407,6 +407,15 @@ gboolean schematic_gui::do_show_help(GtkWidget *widget, gpointer user_data)
         return FALSE;
 }
 
+gboolean schematic_gui::do_show_tutorial(GtkWidget *widget, gpointer user_data)
+{
+	if(!gtk_show_uri(NULL, "https://github.com/ehliar/schematic_gui/blob/master/tutorial/tutorial.md", GDK_CURRENT_TIME, NULL)){
+		fprintf(stderr,"Error: Couldn't launch webbrowser to http://github.com/ehliar/schematic_gui/tutorial/tutorial.md   (perhaps GTK is not configured to show URLs?)\n");
+		
+	}
+	return FALSE;
+}
+
 schematic_gui::schematic_gui(schematic_design *design, const char *filename)
 {
 	
@@ -424,6 +433,7 @@ schematic_gui::schematic_gui(schematic_design *design, const char *filename)
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_about", G_CALLBACK(do_about));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_export", G_CALLBACK(do_export));
 	gtk_builder_add_callback_symbol(build, "schematic_gui::do_show_help", G_CALLBACK(do_show_help));
+	gtk_builder_add_callback_symbol(build, "schematic_gui::do_show_tutorial", G_CALLBACK(do_show_tutorial));
 	gtk_builder_connect_signals(build, this);
 	GObject *menubar = gtk_builder_get_object(build, "menubar1");
 	GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);

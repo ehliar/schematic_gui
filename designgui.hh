@@ -40,6 +40,7 @@ private:
 
         static gboolean do_hide_help(GtkWidget *widget, GdkEvent *event, gpointer user_data);
         static gboolean do_show_help(GtkWidget *widget, gpointer user_data);
+        static gboolean do_show_tutorial(GtkWidget *widget, gpointer user_data);
 
         static std::string do_dialog(GtkWidget *dialog);
 	

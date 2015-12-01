@@ -175,6 +175,16 @@
                 </child>
                 <child>
                   <object class="GtkImageMenuItem" id="imagemenuitem11">
+                    <property name="label">Tutorial</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="use_underline">True</property>
+                    <property name="use_stock">True</property>
+		    <signal name="activate" handler="schematic_gui::do_show_tutorial"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkImageMenuItem" id="imagemenuitem12">
                     <property name="label">gtk-about</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
