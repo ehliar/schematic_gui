@@ -1112,6 +1112,7 @@ void schematic_design::create_new_text_and_attach(double x, double y, const char
                 tmp = current_gate_pin->connect(current_pin+1, current_gate, 1);
                 current_gate->move(x,piny);
         }
+	current_gate = NULL; // Make sure the gate is not selected any longer
         router->processTransaction();
 	create_new_wirename(tmp);
 }
