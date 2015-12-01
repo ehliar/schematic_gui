@@ -256,3 +256,51 @@ save the schematic using the **ctrl-s** command.)
 Right now, schematic_gui only supports export to the SVG file format
 using the Export command in the File menu.
 
+# FAQ
+
+## My favourite component is not included. What do I do?
+
+* Simple answer: Add a small box (key **9**) or large box (key **0**)
+  to the schematic and add a text inside the box to describe the
+  component (e.g. *shifter*)
+* Long answer: Look at the verilog files distributed with
+  schematic_gui (e.g. *add.v*, *mux2.v*, etc). Create your own
+  component using the same system task commands to define the look of
+  your component. Unfortunately there is currently no support in
+  schematic_gui for actually adding another component type (this will
+  change in future versions), but you can of course modify design.cc
+  to include another command to instantiate your favourite component
+  (search for add_gate).
+
+## I pressed the wrong key or schematic_gui crashed, how do I undo/recover my work?
+
+At the moment, no undo functionality is available in
+schematic_gui. Similarly, there are most likely bugs in schematic_gui
+that can cause it to crash. To avoid situations where a lot of work is
+lost schematic_gui will automatically save your work whenever you
+modify the design significantly. These backup files are saved to
+$HOME/.schematic_gui and you can access them from within schematic_gui
+by using the *Recover previous work* command under the File
+menu. (Make sure to use *Save As* the first time you save your
+recovered file though to save the design somewhere else.)
+
+Oh, and of course, if you happen to find a bug, please report it to
+the author, either via email or via github.
+
+
+
+# Recap
+
+You should now know the following commands
+
+* Left mouse button: Select/move a component or checkpoint
+* Middle mouse button: Connect a wire to a port
+* Right mouse button: Connect a wire to another wire
+* Number keys: Instantiate component from component library
+* **d**: Delete the highlighted wire/cancel wire drawing
+* **D**: Delete the highlighted component/checkpoint
+* **t**: Place text
+* **shift-t**: Place text and connect it to closest checkpoint
+* **shift-e**: Edit text
+* **c**: Place checkpoint
+* **p**: Toggle print preview mode

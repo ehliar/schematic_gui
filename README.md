@@ -1,4 +1,4 @@
-# INTRO 
+# Intro 
 
 schematic_gui is a lightweight tool to draw circuit diagrams of
 digital designs. It was written because I was not satisfied with the
@@ -7,7 +7,7 @@ purposes.
 
 
 
-# FEATURES
+# Selected Features
 
 * Optimized for quick schematic entry. Wires will _always_ snap to the
   closest connector or wire (depending on if the middle or right mouse
@@ -25,7 +25,11 @@ purposes.
 * Exports to SVG file format
 
 
-# PREVIEW
+See the <a href="tutorial/tutorial.md">tutorial</a> for more
+information.
+
+
+# Preview
 
 This is a screenshot when opening the simple_alu.v file in the
 examples directory.
@@ -45,7 +49,8 @@ examples directory.
   mouse cursor is).
 
 
-# LICENSE
+
+# License
 
 * Copyright (C) 2015 Andreas Ehliar <andreas.ehliar@liu.se>
 * GPLv3 or later.
@@ -56,14 +61,14 @@ examples directory.
 
 
 
-# REQUIREMENTS
+# Requirements
 
 * libavoid (from the adaptagrams framework)
 * gtk3
 
 
 
-# USAGE
+# Usage
 
 Note that all of these operations are subject to change based on
 feedback from users.
@@ -121,7 +126,7 @@ These components are added to the schematic by pressing the corresponding key.
 
 
 
-# TODO
+# Todo
 
 * Fix all memory leaks
 * Make sure the design files that are saved are actually correct Verilog code
