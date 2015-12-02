@@ -2,8 +2,10 @@
 
 schematic_gui is a lightweight tool to draw circuit diagrams of
 digital designs. It was written because I was not satisfied with the
-tools I typically use to draw schematic diagrams for documentation
-purposes.
+tools I typically use to draw schematic diagrams for **documentation**
+purposes. It may eventually be useful for design as well, but since I
+typically design my circuits using HDL language this is not a primary
+development goal as yet.
 
 
 
@@ -169,4 +171,6 @@ These components are added to the schematic by pressing the corresponding key.
 * Script to automatically download/compile libavoid if not detected by
   configure?
 * Add status bar to make it easier for users to see what is going on.
-* Add a tutorial of some sort.
+* Better error checking. (For example when opening files that either
+  cannot be read or that cannot be parsed.)
+  
