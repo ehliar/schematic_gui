@@ -167,8 +167,7 @@ gboolean schematic_gui::do_save(GtkWidget *widget, gpointer user_data)
 gboolean schematic_gui::do_new(GtkWidget *widget, gpointer user_data)
 {
 	schematic_gui *sg = static_cast<schematic_gui *>(user_data);
-	delete sg->thedesign; // FIXME: Deletion handler!
-	sg->thedesign = new schematic_design(NULL);
+	sg->thedesign = std::make_shared<schematic_design>(nullptr);
 	sg->current_filename = "";
 	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
 	return FALSE;
@@ -192,9 +191,8 @@ gboolean schematic_gui::do_open(GtkWidget *widget, gpointer user_data)
 	if(newfile.length() == 0){
 		return FALSE;
 	}
-	delete sg->thedesign;
 
-	sg->thedesign = new schematic_design(newfile.c_str());
+	sg->thedesign = std::make_shared<schematic_design>(newfile.c_str());
 	sg->set_filename(newfile);
 	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
 	return FALSE;
@@ -221,9 +219,8 @@ gboolean schematic_gui::do_recover(GtkWidget *widget, gpointer user_data)
 	if(newfile.length() == 0){
 		return FALSE;
 	}
-	delete sg->thedesign;
 
-	sg->thedesign = new schematic_design(newfile.c_str());
+	sg->thedesign = std::make_shared<schematic_design>(newfile.c_str());
 	sg->set_filename(std::string("Recover.v"));
 	gdk_window_invalidate_rect(gtk_widget_get_window(GTK_WIDGET(widget)), NULL, 1);
 	return FALSE;
@@ -279,9 +276,8 @@ gboolean schematic_gui::press_key(GtkWidget *widget, GdkEvent *ev, gpointer user
                                 if(!undo_filenames.empty()){
                                         std::string newfilename = undo_filenames.top();
                                         std::string oldfilename = sg->current_filename;
-                                        delete sg->thedesign;
                                         printf("Trying to restore %s\n", newfilename.c_str());
-                                        sg->thedesign = new schematic_design(newfilename.c_str());
+                                        sg->thedesign = std::make_shared<schematic_design>(newfilename.c_str());
                                         sg->set_filename(oldfilename);
                                         sg->thedesign->set_undo_filenames(undo_filenames);
                                         must_invalidate = true;
@@ -459,7 +455,7 @@ gboolean schematic_gui::do_show_tutorial(GtkWidget *widget, gpointer user_data)
 	return FALSE;
 }
 
-schematic_gui::schematic_gui(schematic_design *design, const char *filename)
+schematic_gui::schematic_gui(std::shared_ptr<schematic_design> design, const char *filename)
 {
 	
         cairo_scale_factor = 1;
