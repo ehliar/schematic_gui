@@ -39,50 +39,50 @@ extern int yydebug;
 
 int main (int argc, char *argv[])
 {
-    const char *savefile = NULL;
-    const char *verilogfile = NULL;
-    bool savepdf = false;
+	const char *savefile = NULL;
+	const char *verilogfile = NULL;
+	bool savepdf = false;
 
-    gtk_init (&argc, &argv);
+	gtk_init (&argc, &argv);
 
-    int c;
-    while(( c = getopt(argc, argv, "df:s:")) != -1){
-        switch(c){
-            case 'd':
-                fprintf(stderr,"Enabled parser debugging\n");
-                yydebug = 1;
-                break;
-            case 's':
-                savefile = optarg;
-                break;
-            default:
-                printf("Unknown option %c\n",'c');
-                exit(1);
-        }
-    }
+	int c;
+	while(( c = getopt(argc, argv, "df:s:")) != -1){
+		switch(c){
+		case 'd':
+			fprintf(stderr,"Enabled parser debugging\n");
+			yydebug = 1;
+			break;
+		case 's':
+			savefile = optarg;
+			break;
+		default:
+			printf("Unknown option %c\n",'c');
+			exit(1);
+		}
+	}
 
-    if(optind == argc - 1){
-        verilogfile = argv[optind];
-    }else if(optind == argc){
-        verilogfile = NULL;
-    }else{
-        fprintf(stderr, "Usage: %s [options] design.v\n", argv[0]);
-        exit(1);
-    }
+	if(optind == argc - 1){
+		verilogfile = argv[optind];
+	}else if(optind == argc){
+		verilogfile = NULL;
+	}else{
+		fprintf(stderr, "Usage: %s [options] design.v\n", argv[0]);
+		exit(1);
+	}
 
-    auto thedesign = std::make_shared<schematic_design>(verilogfile);
+	auto thedesign = std::make_shared<schematic_design>(verilogfile);
 
-    if(savefile){
-        if(!savepdf){
-            thedesign->save_svg(savefile);
-            exit(0);
-        }
-    }
+	if(savefile){
+		if(!savepdf){
+			thedesign->save_svg(savefile);
+			exit(0);
+		}
+	}
 
 
-    auto gui = std::make_shared<schematic_gui>(thedesign, verilogfile);
+	auto gui = std::make_shared<schematic_gui>(thedesign, verilogfile);
 
-    gtk_main ();
+	gtk_main ();
 
-    return 0;
+	return 0;
 }
