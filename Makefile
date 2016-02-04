@@ -1,7 +1,7 @@
 # The only thing you probably need to change is this line.
 # The binary will be installed in $(PREFIX)/bin
 # The application data files will be installed in $(PREFIX)/share/schematic_gui
-PREFIX:=$(HOME)
+PREFIX:=$(HOME)/bin/test
 
 # You might want to add -O2 to this line. (Although it is typically
 # fast enough without it and you probably want to be able to debug
@@ -9,7 +9,7 @@ PREFIX:=$(HOME)
 CFLAGS:=-Wall -std=c++11 -g3  $(shell pkg-config --cflags gtk+-3.0) -DPREFIX='"$(PREFIX)"'
 
 
-COMPONENTS=add.v bigbox.v clockedreg.v mult.v box.v mux2.v mux3.v mux4.v mux5.v mux6.v
+COMPONENTS:=$(wildcard *.v)
 
 .PHONY: all install uninstall parsetest clean
 
