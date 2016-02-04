@@ -1,7 +1,7 @@
 # The only thing you probably need to change is this line.
 # The binary will be installed in $(PREFIX)/bin
 # The application data files will be installed in $(PREFIX)/share/schematic_gui
-PREFIX:=$(HOME)/bin/test
+PREFIX:=$(HOME)
 
 # You might want to add -O2 to this line. (Although it is typically
 # fast enough without it and you probably want to be able to debug
@@ -65,7 +65,7 @@ parsetest:
 
 
 clean:
-	$(RM) -f verilog-subset.tab.* verilog-subset.yy.* verilog-subset.output *~  logfile.txt core a.out schematic_gui *.o subsettest
+	$(RM) verilog-subset.tab.* verilog-subset.yy.* verilog-subset.output *~  logfile.txt core a.out schematic_gui *.o subsettest
 
 
 
