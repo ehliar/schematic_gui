@@ -9,7 +9,7 @@ PREFIX:=$(HOME)
 CFLAGS:=-Wall -std=c++11 -g3  $(shell pkg-config --cflags gtk+-3.0) -DPREFIX='"$(PREFIX)"'
 
 
-COMPONENTS=add.v bigbox.v clockedreg.v mult.v box.v mux2.v mux3.v mux4.v mux5.v mux6.v
+COMPONENTS:=$(wildcard *.v)
 
 .PHONY: all install uninstall parsetest clean
 
@@ -65,7 +65,7 @@ parsetest:
 
 
 clean:
-	$(RM) -f verilog-subset.tab.* verilog-subset.yy.* verilog-subset.output *~  logfile.txt core a.out schematic_gui *.o subsettest
+	$(RM) verilog-subset.tab.* verilog-subset.yy.* verilog-subset.output *~  logfile.txt core a.out schematic_gui *.o subsettest
 
 
 

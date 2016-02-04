@@ -18,10 +18,12 @@
 #ifndef _DESIGNGUI_HH
 #define _DESIGNGUI_HH
 
+#include <memory>
+
 class schematic_gui {
 
 private:
-        schematic_design *thedesign;
+	std::shared_ptr<schematic_design> thedesign;
         GtkWidget *window;
         GtkWidget *da;
         GtkWidget *helpwindow;
@@ -68,7 +70,7 @@ private:
         
 public:
 	void set_filename(std::string filename);
-	schematic_gui(schematic_design *design, const char *filename);
+	schematic_gui(std::shared_ptr<schematic_design> design, const char *filename);
 };
 
 
